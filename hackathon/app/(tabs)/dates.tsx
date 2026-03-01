@@ -1,22 +1,25 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { 
   StyleSheet, View, Text, Animated, 
   Dimensions, Pressable, SafeAreaView, ImageBackground 
 } from 'react-native';
+import { useRouter } from 'expo-router'; //
+import * as Haptics from 'expo-haptics';
 
 const { width } = Dimensions.get('window');
 const ITEM_SIZE = width * 0.72;
 const SPACING = 10;
 const EMPTY_ITEM_SIZE = (width - ITEM_SIZE) / 2;
 
+// The IDs here MUST match the IDs in your data/DateManifestos.ts
 const CHICAGO_DATES = [
-  { id: 'empty-left', title: '', icon: '' }, // Spacers for centering
+  { id: 'spacer-left', title: '', icon: '' }, 
   { id: '1', title: 'The Green Mill', desc: 'Jazz & Prohibition Vibes', icon: '🎷' },
-  { id: '2', title: 'Architecture Tour', desc: 'Skyline views from the river', icon: '🚤' },
+  { id: '2', title: 'Riverwalk', desc: 'Skyline views from the river', icon: '🚤' },
   { id: '3', title: 'Conservatory', desc: 'Tropical escape in the city', icon: '🌿' },
   { id: '4', title: 'The Second City', desc: 'A night of classic improv', icon: '🎭' },
   { id: '5', title: 'Pequods Pizza', desc: 'The caramelized crust ritual', icon: '🍕' },
-  { id: 'empty-right', title: '', icon: '' },
+  { id: 'spacer-right', title: '', icon: '' },
 ];
 
 const COLORS = {
@@ -28,8 +31,25 @@ const COLORS = {
 };
 
 export default function ChicagoDateDeck() {
+  const router = useRouter(); // Initialize the "Bridge"
   const scrollX = useRef(new Animated.Value(0)).current;
-  const heroImg = require('../../assets/images/7even.png');
+  const [activeIndex, setActiveIndex] = useState(1); // Track centered card
+
+  const heroImg = require('../../assets/images/7even.png'); //
+
+  const handleLockIn = () => {
+    const selectedDate = CHICAGO_DATES[activeIndex];
+    
+    if (selectedDate && selectedDate.title) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy); // Mechanical click
+      
+      // Navigate and pass the ID to the Manifesto page
+      router.push({
+        pathname: '/date-manifesto',
+        params: { locationId: selectedDate.id }
+      });
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -51,7 +71,15 @@ export default function ChicagoDateDeck() {
             decelerationRate="fast"
             onScroll={Animated.event(
               [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-              { useNativeDriver: true }
+              { 
+                useNativeDriver: true,
+                listener: (event: any) => {
+                  // Calculate which index is centered
+                  const offsetX = event.nativeEvent.contentOffset.x;
+                  const index = Math.round(offsetX / ITEM_SIZE) + 1;
+                  setActiveIndex(index);
+                }
+              }
             )}
             renderItem={({ item, index }) => {
               if (!item.title) return <View style={{ width: EMPTY_ITEM_SIZE }} />;
@@ -91,8 +119,10 @@ export default function ChicagoDateDeck() {
           />
 
           <View style={styles.footer}>
+            {/* 3D MECHANICAL PLINTH */}
             <View style={styles.plinthShadow} />
             <Pressable 
+              onPress={handleLockIn}
               style={({ pressed }) => [
                 styles.plinthFace,
                 { transform: [{ translateY: pressed ? 6 : 0 }] }
@@ -115,9 +145,7 @@ const styles = StyleSheet.create({
   header: { alignItems: 'center', marginBottom: 20 },
   logo: { fontSize: 42, fontWeight: '900', color: '#FFF' },
   tagline: { fontSize: 10, color: '#FFF', fontWeight: '800', letterSpacing: 2 },
-  
   flatListContent: { alignItems: 'center' },
-  
   card: {
     backgroundColor: COLORS.CHAMPAGNE,
     height: 380,
@@ -136,7 +164,6 @@ const styles = StyleSheet.create({
   cardIcon: { fontSize: 80, marginBottom: 20 },
   cardTitle: { fontSize: 24, fontWeight: '900', color: COLORS.MIDNIGHT, textAlign: 'center' },
   cardDesc: { fontSize: 14, color: COLORS.TERRACOTTA, fontWeight: '700', marginTop: 10, textAlign: 'center' },
-
   footer: { paddingHorizontal: 40, marginBottom: 40, height: 70 },
   plinthShadow: { position: 'absolute', top: 6, left: 40, right: 40, bottom: -6, backgroundColor: COLORS.TERRA_DARK, borderRadius: 15 },
   plinthFace: { position: 'absolute', top: 0, left: 40, right: 40, bottom: 0, backgroundColor: COLORS.TERRACOTTA, borderRadius: 15, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: COLORS.TERRA_DARK },

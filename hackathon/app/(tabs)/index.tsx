@@ -1,98 +1,106 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const ALL_VALUES = [
+  "Acceptance", "Achievement", "Adventure", "Autonomy", "Caring", "Challenge", 
+  "Compassion", "Contribution", "Creativity", "Faithfulness", "Freedom", "Friendship", 
+  "Generosity", "Growth", "Happiness", "Honesty", "Hope", "Humor", "Inner Peace", 
+  "Integrity", "Justice", "Knowledge", "Loving", "Purpose", "Service", "Spirituality"
+];
 
-export default function HomeScreen() {
+export default function ValueSortScreen() {
+  const [selectedValues, setSelectedValues] = useState<string[]>([]);
+  
+  // Updated to your new filename
+  const unityImg = require('../../assets/images/unity.jpg') as any;
+
+  const toggleValue = (value: string) => {
+    if (selectedValues.includes(value)) {
+      setSelectedValues(selectedValues.filter(v => v !== value));
+    } else if (selectedValues.length < 5) {
+      setSelectedValues([...selectedValues, value]);
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <View style={styles.mainContainer}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* New Hero Section */}
+        <View style={styles.heroSection}>
+          <Image source={unityImg} style={styles.heroImage} />
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.title}>Chicago Style Values</Text>
+            <Text style={styles.subtitle}>Building bridges, one date at a time.</Text>
+          </View>
+        </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        <View style={styles.topFiveContainer}>
+          <Text style={styles.selectionHeader}>Your Top 5 Core Values:</Text>
+          <View style={styles.selectedRow}>
+            {selectedValues.map(v => (
+              <View key={v} style={styles.selectedPill}>
+                <Text style={styles.pillText}>{v}</Text>
+              </View>
+            ))}
+            {selectedValues.length === 0 && <Text style={styles.placeholder}>Pick 5 below...</Text>}
+          </View>
+        </View>
+
+        <View style={styles.grid}>
+          {ALL_VALUES.map((value) => {
+            const isSelected = selectedValues.includes(value);
+            return (
+              <TouchableOpacity 
+                key={value} 
+                onPress={() => toggleValue(value)}
+                style={[styles.valueCard, isSelected && styles.valueCardSelected]}
+              >
+                <Text style={[styles.valueText, isSelected && styles.valueTextSelected]}>
+                  {value}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  mainContainer: { flex: 1, backgroundColor: '#f0f2f5' },
+  scrollContainer: { paddingBottom: 40 },
+  heroSection: {
+    backgroundColor: '#fff',
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    overflow: 'hidden',
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  heroImage: {
+    width: '100%',
+    height: 250,
+    resizeMode: 'cover',
+  },
+  headerTextContainer: {
+    padding: 20,
     alignItems: 'center',
-    gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+  title: { fontSize: 28, fontWeight: '900', color: '#C60C30' },
+  subtitle: { fontSize: 14, color: '#666', fontStyle: 'italic' },
+  topFiveContainer: { padding: 20, backgroundColor: 'white', marginHorizontal: 20, borderRadius: 20, marginBottom: 20 },
+  selectionHeader: { fontWeight: 'bold', marginBottom: 10, color: '#333' },
+  selectedRow: { flexDirection: 'row', flexWrap: 'wrap' },
+  selectedPill: { backgroundColor: '#C60C30', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 15, margin: 3 },
+  pillText: { color: 'white', fontSize: 11, fontWeight: 'bold' },
+  placeholder: { color: '#aaa', fontSize: 12 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: 20 },
+  valueCard: { backgroundColor: '#fff', width: '48%', padding: 15, borderRadius: 12, marginBottom: 12, alignItems: 'center' },
+  valueCardSelected: { backgroundColor: '#C60C30' },
+  valueText: { fontSize: 14, fontWeight: '600', color: '#444' },
+  valueTextSelected: { color: '#fff' },
 });

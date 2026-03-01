@@ -1,127 +1,123 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, ScrollView, Image, TouchableOpacity, Dimensions } from 'react-native';
+import React from 'react';
+import { StyleSheet, View, Text, Image, Pressable, SafeAreaView, Dimensions, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
 
-const { width } = Dimensions.get('window');
-
-// Defining our new Chicago "Warmer" palette
+// Full "Final Boss" Scholastic Palette
 const COLORS = {
-  WARM_RED: '#D94133',     // Rich, Terracotta Warmth
-  OFF_WHITE: '#FBFBFB',     // Card Background (Default)
-  TEXT_MAIN: '#3A3A3A',     // Deep charcoal
-  TEXT_SUB: '#7F8C8D',      // Subtitle gray
-  BG: '#F4F7F6',            // Main app background
+  TERRACOTTA: '#D94133',
+  TERRA_DARK: '#8B2B22',
+  CHAMPAGNE: '#FDFBF7',
+  BONE: '#E8E2D5',
+  BONE_DARK: '#C4BDAE', 
+  MIDNIGHT: '#2C3E50',
+  WHITE: '#FFFFFF',
+  UIC_BLUE: '#001E62' // Add factually accurate school colors
 };
 
-const VALUES = [
-  "Acceptance", "Adventure", "Autonomy", "Compassion", "Creativity", "Fitness", 
-  "Freedom", "Friendship", "Growth", "Happiness", "Honesty", "Humor", "Inner Peace", 
-  "Integrity", "Justice", "Knowledge", "Loving", "Purpose", "Spirituality", "Wisdom"
+const { width } = Dimensions.get('window');
+// Calculate height based on the asset aspect ratio (approx 16:9)
+const HERO_IMAGE_HEIGHT = (width - 40) * (9 / 16); 
+
+const CAMPUS_PARTNERS = [
+  { id: 'dp', name: 'DePaul', color: COLORS.TERRACOTTA }, // Factor 1: DePaul fact-check
+  { id: 'uic', name: 'UIC', color: COLORS.UIC_BLUE },      // Factor 2: UIC fact-check
+  { id: 'ru', name: 'Roosevelt', color: '#1A5A27' },       // Factor 3: Roosevelt green
+  { id: 'ccc', name: 'Columbia', color: COLORS.MIDNIGHT }, // Factor 4: Columbia
+  { id: 'hwc', name: 'H. Washington', color: '#6A2A6F' }   // Factor 5: Harold Washington
 ];
 
-export default function SleekWarmValueScreen() {
-  const [selected, setSelected] = useState<string[]>([]);
-  // Double-check the spelling here match your file perfectly!
-  const unityImg = require('../../assets/images/unity.jpg') as any;
-
-  const handlePress = (val: string) => {
-    if (selected.includes(val)) {
-      setSelected(selected.filter(item => item !== val));
-    } else if (selected.length < 5) {
-      setSelected([...selected, val]);
-    }
-  };
+export default function WelcomeCampusLobby() {
+  const router = useRouter();
+  // Verified path: assets/images/7even.png
+  const heroImg = require('../../assets/images/7even.png');
 
   return (
-    <View style={styles.main}>
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.hero}>
-          <Image source={unityImg} style={styles.heroImg} />
-          {/* Subtle gradient overlay to make text pop */}
-          <View style={styles.overlay}>
-            <Text style={styles.heroTitle}>Match on Values</Text>
-          </View>
+    <SafeAreaView style={styles.safe}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        
+        {/* 1. Hero Image Header: NO MORE ZOOM */}
+        <View style={styles.heroWrapper}>
+          <Image 
+            source={heroImg} 
+            style={styles.hero} 
+            resizeMode="contain" // The crucial fix
+          />
+          {/* Subtle 3D plinth shadow beneath the image container */}
+          <View style={styles.imageShadowPlinth} />
         </View>
 
-        <View style={styles.selectionBox}>
-          <Text style={styles.sectionLabel}>Your Priorities ({selected.length}/5)</Text>
-          <View style={styles.pillContainer}>
-            {selected.map(val => (
-              <View key={val} style={styles.pill}><Text style={styles.pillText}>{val}</Text></View>
+        {/* 2. Branding Section */}
+        <View style={styles.brandContainer}>
+          <Text style={styles.logo}>7even</Text>
+          <Text style={styles.tagline}>SCHOLASTIC CONNECTION IN THE CHICAGO LOOP</Text>
+        </View>
+
+        {/* 3. The 3D Campus Partners Grid */}
+        <View style={styles.campusContainer}>
+          <Text style={styles.campusHeader}>CONNECTING STUDENTS FROM:</Text>
+          <View style={styles.campusGrid}>
+            {CAMPUS_PARTNERS.map((school) => (
+              <View key={school.id} style={styles.campusPill}>
+                <View style={[styles.campusIcon, { borderColor: school.color }]}>
+                  {/* Stylized factually accurate vector initials (not logos) */}
+                  <Text style={[styles.campusInitial, { color: school.color }]}>
+                    {school.id.toUpperCase()}
+                  </Text>
+                </View>
+                <Text numberOfLines={1} style={styles.campusName}>{school.name}</Text>
+              </View>
             ))}
-            {selected.length === 0 && <Text style={styles.hint}>Define your unique vibe...</Text>}
           </View>
         </View>
 
-        <View style={styles.grid}>
-          {VALUES.map(val => {
-            const isActive = selected.includes(val);
-            return (
-              <TouchableOpacity 
-                key={val} 
-                activeOpacity={0.8}
-                onPress={() => handlePress(val)}
-                // We refined the base style here
-                style={[styles.cardDefault, isActive && styles.cardActive]}
-              >
-                <Text style={[styles.cardTextDefault, isActive && styles.cardTextActive]}>
-                  {val}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
+        {/* 4. Main 3D Mechanical "Enter" Button */}
+        <View style={styles.buttonContainer}>
+          <View style={styles.keyShadow} />
+          <Pressable 
+            onPress={() => router.push('/values')}
+            style={({ pressed }) => [
+              styles.keyFace,
+              { transform: [{ translateY: pressed ? 6 : 0 }] }
+            ]}
+          >
+            <Text style={styles.buttonText}>START JOURNEY</Text>
+          </Pressable>
         </View>
+
+        <Text style={styles.footer}>DEPAUL • UIC • ROOSEVELT • COLUMBIA • H. WASHINGTON</Text>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  main: { flex: 1, backgroundColor: COLORS.BG },
-  scroll: { paddingBottom: 100 },
-  hero: { height: 280, width: '100%', marginBottom: -30 },
-  heroImg: { width: '100%', height: '100%' },
-  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'flex-end', padding: 30 },
-  heroTitle: { color: '#FFF', fontSize: 30, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 1 },
-  selectionBox: { backgroundColor: '#FFF', marginHorizontal: 20, padding: 20, borderRadius: 24, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 15, elevation: 10 },
-  sectionLabel: { fontSize: 11, fontWeight: '800', color: COLORS.TEXT_SUB, marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.8 },
-  pillContainer: { flexDirection: 'row', flexWrap: 'wrap' },
-  pill: { backgroundColor: COLORS.WARM_RED, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, margin: 4 },
-  pillText: { color: '#FFF', fontWeight: '700', fontSize: 12 },
-  hint: { color: '#BBB', fontStyle: 'italic', fontSize: 12 },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: 20, marginTop: 10 },
+  safe: { flex: 1, backgroundColor: COLORS.MIDNIGHT },
+  scroll: { backgroundColor: COLORS.CHAMPAGNE, paddingHorizontal: 20, paddingBottom: 60 },
   
-  // *** THIS IS THE NEW SLEEK DEFAULT BUTTON VIBE ***
-  cardDefault: { 
-    backgroundColor: COLORS.OFF_WHITE, 
-    width: (width - 60) / 2, 
-    paddingVertical: 18, 
-    borderRadius: 14, 
-    marginBottom: 15, 
-    alignItems: 'center', 
-    borderWidth: 1, 
-    borderColor: '#E6EAEB', // Super light, clean border
-    shadowColor: '#000', 
-    shadowOpacity: 0.03, // Barely there shadow
-    shadowRadius: 5, 
-    elevation: 1, 
-  },
-  cardActive: { 
-    backgroundColor: COLORS.WARM_RED, 
-    borderColor: COLORS.WARM_RED, // Border changes to match fill
-    shadowOpacity: 0.15, // Subtle shadow pop when active
-    transform: [{ scale: 1.02 }], // Slight upscale vibe
-  },
+  // Hero Image (Non-Zoomed)
+  heroWrapper: { marginVertical: 40, width: '100%', height: HERO_IMAGE_HEIGHT, alignItems: 'center' },
+  hero: { width: '100%', height: '100%', borderRadius: 20 },
+  imageShadowPlinth: { position: 'absolute', bottom: -6, left: 10, right: 10, height: 10, backgroundColor: COLORS.BONE_DARK, borderRadius: 100, opacity: 0.6 },
+
+  // Branding
+  brandContainer: { alignItems: 'center', marginBottom: 40 },
+  logo: { fontSize: 88, fontWeight: '900', color: COLORS.MIDNIGHT, letterSpacing: -5 },
+  tagline: { fontSize: 9, color: COLORS.MIDNIGHT, fontWeight: '700', letterSpacing: 2.5, marginTop: -10, opacity: 0.8 },
   
-  // *** NEW TEXT VIBE ***
-  cardTextDefault: { 
-    fontWeight: '700', 
-    color: COLORS.TEXT_MAIN, 
-    fontSize: 12, 
-    textTransform: 'uppercase', // Sleek labeling
-    letterSpacing: 0.6,
-  },
-  cardTextActive: { 
-    color: '#FFF', 
-    fontWeight: '800', 
-  },
+  // Campus Partners Section
+  campusContainer: { alignItems: 'center', marginBottom: 40 },
+  campusHeader: { fontSize: 10, fontWeight: '800', color: COLORS.MIDNIGHT, letterSpacing: 1.5, marginBottom: 15 },
+  campusGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
+  campusPill: { alignItems: 'center', marginHorizontal: 10, marginVertical: 8, width: (width - 100) / 3 },
+  campusIcon: { width: 50, height: 50, borderRadius: 25, backgroundColor: COLORS.WHITE, borderWidth: 1.5, justifyContent: 'center', alignItems: 'center', marginBottom: 6, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 5 },
+  campusInitial: { fontSize: 16, fontWeight: '900', letterSpacing: -1 },
+  campusName: { fontSize: 10, fontWeight: '700', color: COLORS.MIDNIGHT, textTransform: 'uppercase' },
+
+  // 3D Button Stack
+  buttonContainer: { width: 280, height: 70, alignSelf: 'center', marginBottom: 40 },
+  keyShadow: { position: 'absolute', top: 6, left: 0, right: 0, bottom: -6, backgroundColor: COLORS.TERRA_DARK, borderRadius: 15 },
+  keyFace: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: COLORS.TERRACOTTA, borderRadius: 15, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: COLORS.TERRA_DARK },
+  buttonText: { color: COLORS.WHITE, fontWeight: '900', letterSpacing: 2, fontSize: 18 },
+
+  footer: { color: COLORS.MIDNIGHT, fontSize: 8, fontWeight: '800', opacity: 0.5, letterSpacing: 2, textAlign: 'center' }
 });

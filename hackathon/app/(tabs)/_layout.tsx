@@ -1,33 +1,24 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
-
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { FontAwesome } from '@expo/vector-icons'; // Built into Expo
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+    <Tabs screenOptions={{ 
+      tabBarActiveTintColor: '#D94133', // Our Terracotta
+      tabBarStyle: { backgroundColor: '#FDFBF7' } // Our Champagne
+    }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Core 7',
+          tabBarIcon: ({ color }) => <FontAwesome name="heart" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="vibe"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Vibe Check',
+          tabBarIcon: ({ color }) => <FontAwesome name="bolt" size={24} color={color} />,
         }}
       />
     </Tabs>

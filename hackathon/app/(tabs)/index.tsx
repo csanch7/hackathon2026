@@ -31,12 +31,23 @@ export default function HomeScreen() {
           />
         </View>
       }>
-      <ThemedView style={styles.headerContent}>
-        <ThemedText type="title" style={[styles.heroTitle, { fontFamily: Fonts.rounded }]}>
-          Build fast. Ship clean.
-        </ThemedText>
-        <ThemedText style={styles.heroSubtitle}>
-          A modern starter workspace with focused flows, high-contrast UI, and polished defaults.
+      <ThemedView style={styles.titleContainer}>
+        <ThemedText type="title">Welcome to Demon Hacks!</ThemedText>
+        <HelloWave />
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
+        <ThemedText>
+          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
+          Press{' '}
+          <ThemedText type="defaultSemiBold">
+            {Platform.select({
+              ios: 'cmd + d',
+              android: 'cmd + m',
+              web: 'F12',
+            })}
+          </ThemedText>{' '}
+          to open developer tools.
         </ThemedText>
       </ThemedView>
 
